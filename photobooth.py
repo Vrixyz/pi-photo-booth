@@ -220,7 +220,6 @@ with picamera.PiCamera() as camera:
 	
 				camera.annotate_text = ''
 				camera.capture( imgPath + '/image' + str(pNum) + '.jpg')
-			        time.sleep(1)
 
 			# Stop the camera preview so we can return to the pygame surface
 			camera.stop_preview()
