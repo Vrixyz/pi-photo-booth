@@ -41,9 +41,10 @@ import os
 import sys
 import pygame
 import random
+import select
 
 slideshowRunning = True
-basewidth = 177 # Used for merging the photos onto one
+basewidth = 246 # Used for merging the photos onto one
 printPhoto = False
 imgPath = './images/tmp'
 
@@ -58,6 +59,9 @@ pygame.mouse.set_visible(0)
 
 w = pygame.display.Info().current_w
 h = pygame.display.Info().current_h
+
+w = min(w, h);
+h = min(w, h);
 
 screenSize = (w, h)
 
@@ -96,20 +100,35 @@ def slideshow():
 	
 			time.sleep(2) # pause 
 
+def quit():
+	slideshowRunning = False
+	pygame.quit()
+	sys.exit()
+
+
+
 # Handle events like keypress
 def checkEvents():
 	for event in pygame.event.get():
 		# Shutdown the application if quit event or escape key is pressed
 		if event.type == pygame.QUIT or ( event.type is pygame.KEYDOWN and event.key == pygame.K_ESCAPE ):
-			slideshowRunning = False
-			pygame.quit()
-			sys.exit()
-
+			quit()
 		if event.type is pygame.KEYDOWN and event.key == pygame.K_f: # Switch the display mode between full screen and windowed
 			if screen.get_flags() & pygame.FULLSCREEN:
 				pygame.display.set_mode(screenSize)
 			else:
 				pygame.display.set_mode(screenSize,pygame.FULLSCREEN)
+		if event.type is pygame.KEYDOWN and event.key == pygame.K_p:
+			return True
+	while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+		line = sys.stdin.readline()
+		print(line)
+		if line:
+			if line == "p\n":
+				return True
+			if line == "q\n":
+				quit()	
+	return False
 
 # On screen text message
 def displayStatus(status):
@@ -136,20 +155,20 @@ def combineImages():
 	blankImage = Image.open('blank.jpg')
 
 	image1 = Image.open(imgPath + '/image1.jpg')		
-	image1 = image1.resize((177,140),PIL.Image.ANTIALIAS)
+	image1 = image1.resize((246,246),PIL.Image.ANTIALIAS)
 	blankImage.paste(image1, (0,0))
 
 	image2 = Image.open(imgPath + '/image2.jpg')		
-	image2 = image2.resize((177,140),PIL.Image.ANTIALIAS)
-	blankImage.paste(image2, (0,140))
+	image2 = image2.resize((246,246),PIL.Image.ANTIALIAS)
+	blankImage.paste(image2, (0,246))
 
 	image3 = Image.open(imgPath + '/image3.jpg')		
-	image3 = image3.resize((177,140),PIL.Image.ANTIALIAS)
-	blankImage.paste(image3, (177,0))
+	image3 = image3.resize((246,246),PIL.Image.ANTIALIAS)
+	blankImage.paste(image3, (246,0))
 
 	image4 = Image.open(imgPath + '/image4.jpg')		
-	image4 = image4.resize((177,140),PIL.Image.ANTIALIAS)
-	blankImage.paste(image4, (177,140))
+	image4 = image4.resize((246,246),PIL.Image.ANTIALIAS)
+	blankImage.paste(image4, (246,246))
 
 	blankImage.save(imgPath + '/combined.jpg', 'JPEG', quality=100)
 
@@ -171,15 +190,15 @@ t = Thread(target=slideshow)
 t.start()
 
 with picamera.PiCamera() as camera:
-
+        camera.resolution = (2464, 2464)
 	while True:
-		
-		checkEvents() # Needed to check for keypresses and close signals
+		time.sleep(0.1);	
+		input_state = checkEvents() # Needed to check for keypresses and close signals
 
 		# Putton press to start the photo sequence
-		input_state = GPIO.input(18)
+		input_state = False if input_state else GPIO.input(18)
 		if input_state == False:
-	
+			print("stop slideshow")
 			# Stop the slideshow
 			slideshowRunning = False
 
@@ -201,8 +220,8 @@ with picamera.PiCamera() as camera:
 	
 				camera.annotate_text = ''
 				camera.capture( imgPath + '/image' + str(pNum) + '.jpg')
-				time.sleep(1)
-			
+			        time.sleep(1)
+
 			# Stop the camera preview so we can return to the pygame surface
 			camera.stop_preview()
 
