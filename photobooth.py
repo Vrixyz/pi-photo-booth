@@ -43,6 +43,8 @@ import pygame
 import random
 import select
 
+from libs.pb_image import *
+
 slideshowRunning = True
 basewidth = 246 # Used for merging the photos onto one
 printPhoto = False
@@ -60,8 +62,7 @@ pygame.mouse.set_visible(0)
 w = pygame.display.Info().current_w
 h = pygame.display.Info().current_h
 
-w = min(w, h);
-h = min(w, h);
+maxSquareSize = min(w, h);
 
 screenSize = (w, h)
 
@@ -81,8 +82,8 @@ def displayImage(file):
 	screen.fill((0,0,0))
 
 	img = pygame.image.load(file) 
-	img = pygame.transform.scale(img,(w,h)) # Make the image full screen
-	screen.blit(img,(0,0))
+	img = pygame.transform.scale(img,(maxSquareSize,maxSquareSize)) # Make the image full screen
+	screen.blit(img,((w - maxSquareSize) / 2,0))
 	pygame.display.flip() # update the display
 
 
@@ -150,27 +151,15 @@ def displayStatus(status):
 # Merge all photos onto one ready for printing
 def combineImages():
 	displayStatus('Please wait. Processing Images')
-			
-	# Do the merging
-	blankImage = Image.open('blank.jpg')
-
+	background = Image.open('blank.jpg')
 	image1 = Image.open(imgPath + '/image1.jpg')		
-	image1 = image1.resize((246,246),PIL.Image.ANTIALIAS)
-	blankImage.paste(image1, (0,0))
-
-	image2 = Image.open(imgPath + '/image2.jpg')		
-	image2 = image2.resize((246,246),PIL.Image.ANTIALIAS)
-	blankImage.paste(image2, (0,246))
-
-	image3 = Image.open(imgPath + '/image3.jpg')		
-	image3 = image3.resize((246,246),PIL.Image.ANTIALIAS)
-	blankImage.paste(image3, (246,0))
-
-	image4 = Image.open(imgPath + '/image4.jpg')		
-	image4 = image4.resize((246,246),PIL.Image.ANTIALIAS)
-	blankImage.paste(image4, (246,246))
-
-	blankImage.save(imgPath + '/combined.jpg', 'JPEG', quality=100)
+	image2 = Image.open(imgPath + '/image2.jpg')
+	image3 = Image.open(imgPath + '/image3.jpg')
+	image4 = Image.open(imgPath + '/image4.jpg')
+	offset1 = 179
+	offset2 = 519
+	combined_image = pb_combineImages(background, image1, image2, image3, image4, offset1, offset2)
+	combined_image.save(imgPath + '/combined.jpg', 'JPEG', quality=100)
 
 
 # Print the photo
@@ -191,6 +180,7 @@ t.start()
 
 with picamera.PiCamera() as camera:
         camera.resolution = (2464, 2464)
+	camera.annotate_text_size = 160
 	while True:
 		time.sleep(0.1);	
 		input_state = checkEvents() # Needed to check for keypresses and close signals
