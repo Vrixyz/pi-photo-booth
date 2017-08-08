@@ -4,17 +4,17 @@ import PIL
 from PIL import Image
 from libs.pb_image import *
 
-imgPath = './testData'
+imgPath = './dataTest'
 
 class TestCombineImages(unittest.TestCase):
 	def test_combineNormal(self):
-		background = Image.open('blank.jpg')
-		image1 = Image.open(imgPath + '/image1.jpg')		
-		image2 = Image.open(imgPath + '/image2.jpg')
-		image3 = Image.open(imgPath + '/image3.jpg')
-		image4 = Image.open(imgPath + '/image4.jpg')
-		offset1 = 179
-		offset2 = 519
+		background = Image.open(imgPath + '/black.jpg')
+		image1 = Image.open(imgPath + '/white.jpg')		
+		image2 = Image.open(imgPath + '/red.jpg')
+		image3 = Image.open(imgPath + '/blue.jpg')
+		image4 = Image.open(imgPath + '/green.jpg')
+		offset1 = 191
+		offset2 = 537
 		combined_image = pb_combineImages(background, image1, image2, image3, image4, offset1, offset2)
 		combined_image.save(imgPath + '/combined_testResult.jpg', 'JPEG', quality=100)
 
