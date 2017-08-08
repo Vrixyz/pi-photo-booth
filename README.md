@@ -1,4 +1,6 @@
-# pi-photo-booth
+# pi-photo-booth 
+[![Build Status](https://travis-ci.org/Vrixyz/pi-photo-booth.svg?branch=master)](https://travis-ci.org/Vrixyz/pi-photo-booth)
+
 Automatically exported from code.google.com/p/pi-photo-booth
 
 Raspberry Pi Photo Booth software written in Python.
