@@ -156,9 +156,9 @@ def combineImages():
 	image2 = Image.open(imgPath + '/image2.jpg')
 	image3 = Image.open(imgPath + '/image3.jpg')
 	image4 = Image.open(imgPath + '/image4.jpg')
-	offset1 = 179
-	offset2 = 519
-	combined_image = pb_combineImages(background, image1, image2, image3, image4, offset1, offset2)
+	offset1 = 246 / 2
+	offset2 = 393
+	combined_image = pb_resizeAndMergeImages(background, 246, 246 / 10, 246 / 2, image1, image2, image3, image4)
 	combined_image.save(imgPath + '/combined.jpg', 'JPEG', quality=100)
 
 
